@@ -23,29 +23,27 @@ const Login = () => {
   };
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
+  e.preventDefault();
+  try {
+    const response = await API.post("/login/", formData);
 
-    try {
-      const response = await API.post("/login/", formData);
+    console.log("Response from server:", response.data); // Log karke check karlo
 
-      // Save the access token to LocalStorage
-      if (response.data.access) {
-        localStorage.setItem("token", response.data.access);
-        alert(response.data.message || "Login successful!");
-        
-        // Navigate directly to profile page
-        navigate("/profile"); 
-      } else {
-        setError("Login failed: No access token received from server.");
-      }
-    } catch (error) {
-      if (error.response) {
-        setError(error.response.data.message || "Invalid credentials.");
-      } else {
-        setError("Something went wrong. Please check your connection.");
-      }
+    if (response.data.access) {
+      // 1. Token localstorage me save karo
+      localStorage.setItem("token", response.data.access);
+      
+      alert(response.data.message || "Login successful!");
+      
+      // 2. Clear state / Navigate after token is stored
+      navigate("/profile"); 
+    } else {
+      alert("Backend didn't send 'access' token!");
     }
-  };
+  } catch (error) {
+    setError(error.response?.data?.message || "Login failed");
+  }
+};
 
   return (
     <div className="login-container">
