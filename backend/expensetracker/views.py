@@ -2,7 +2,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from django.contrib.auth.hashers import check_password
-
+from rest_framework_simplejwt.tokens import RefreshToken
 from .db import ExpenseTrackerDb
 from .serializers import RegisterSerializer, LoginSerializer,CategorySerializer,TransactionSerializer
 
@@ -46,7 +46,6 @@ class LoginView(APIView):
 
         # Search by username OR email
         user = db.get_user_by_login(login)
-        print(user)
 
         if user is None:
             return Response(
@@ -66,16 +65,17 @@ class LoginView(APIView):
                 status=status.HTTP_401_UNAUTHORIZED
             )
 
-        request.session["user_id"] = user["user_id"]
-        request.session["username"] = user["username"]
-
-        # Save the session immediately
-        request.session.save()
+        # Create JWT token for your custom user dict
+        refresh = RefreshToken()
+        refresh["user_id"] = user["user_id"]
+        refresh["username"] = user["username"]
 
         return Response(
             {
                 "success": True,
                 "message": "Login successful.",
+                "access": str(refresh.access_token),   # <-- Frontend saves this!
+                "refresh": str(refresh),
                 "user": {
                     "user_id": user["user_id"],
                     "username": user["username"],

@@ -4,7 +4,6 @@ import API from "../api";
 import "../Styles/Login.css";
 
 const Login = () => {
-
   const navigate = useNavigate();
 
   const [formData, setFormData] = useState({
@@ -24,33 +23,33 @@ const Login = () => {
   };
 
   const handleSubmit = async (e) => {
-  e.preventDefault();
+    e.preventDefault();
 
-  try {
-    const response = await API.post("/login/", formData);
+    try {
+      const response = await API.post("/login/", formData);
 
-    // 1. Save the token from the backend
-    if (response.data.access) {
-      localStorage.setItem("token", response.data.access);
+      // Save the access token to LocalStorage
+      if (response.data.access) {
+        localStorage.setItem("token", response.data.access);
+        alert(response.data.message || "Login successful!");
+        
+        // Navigate directly to profile page
+        navigate("/profile"); 
+      } else {
+        setError("Login failed: No access token received from server.");
+      }
+    } catch (error) {
+      if (error.response) {
+        setError(error.response.data.message || "Invalid credentials.");
+      } else {
+        setError("Something went wrong. Please check your connection.");
+      }
     }
+  };
 
-    alert(response.data.message || "Login successful!");
-
-    // 2. Navigate to dashboard/profile
-    navigate("/");
-
-  } catch (error) {
-    if (error.response) {
-      setError(error.response.data.message);
-    } else {
-      setError("Something went wrong.");
-    }
-  }
-};
   return (
     <div className="login-container">
       <div className="login-card">
-
         <span className="card-eyebrow">Member Access</span>
         <h1>Login</h1>
         <p>Welcome back! Sign in to continue.</p>
@@ -58,7 +57,6 @@ const Login = () => {
         {error && <p className="error-message">{error}</p>}
 
         <form onSubmit={handleSubmit}>
-
           <div className="input-group">
             <label>Username or Email</label>
             <input
@@ -83,17 +81,12 @@ const Login = () => {
             />
           </div>
 
-          <button type="submit">
-            Login
-          </button>
-
+          <button type="submit">Login</button>
         </form>
 
         <div className="login-link">
-          Don't have an account?{" "}
-          <Link to="/register">Register</Link>
+          Don't have an account? <Link to="/register">Register</Link>
         </div>
-
       </div>
     </div>
   );
