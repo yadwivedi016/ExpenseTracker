@@ -35,37 +35,22 @@ class RegisterView(APIView):
 
 
 class LoginView(APIView):
-
     def post(self, request):
-
         serializer = LoginSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
 
         login = serializer.validated_data["login"]
         password = serializer.validated_data["password"]
 
-        # Search by username OR email
         user = db.get_user_by_login(login)
 
-        if user is None:
+        if user is None or not check_password(password, user["password"]):
             return Response(
-                {
-                    "success": False,
-                    "message": "Invalid username/email or password."
-                },
+                {"success": False, "message": "Invalid username/email or password."},
                 status=status.HTTP_401_UNAUTHORIZED
             )
 
-        if not check_password(password, user["password"]):
-            return Response(
-                {
-                    "success": False,
-                    "message": "Invalid username/email or password."
-                },
-                status=status.HTTP_401_UNAUTHORIZED
-            )
-
-        # Create JWT token for your custom user dict
+        # GENERATE JWT TOKEN
         refresh = RefreshToken()
         refresh["user_id"] = user["user_id"]
         refresh["username"] = user["username"]
@@ -74,15 +59,8 @@ class LoginView(APIView):
             {
                 "success": True,
                 "message": "Login successful.",
-                "access": str(refresh.access_token),   # <-- Frontend saves this!
+                "access": str(refresh.access_token),  # <-- Front-end ISKO dhoond raha hai!
                 "refresh": str(refresh),
-                "user": {
-                    "user_id": user["user_id"],
-                    "username": user["username"],
-                    "email": user["email"],
-                    "first_name": user["first_name"],
-                    "last_name": user["last_name"]
-                }
             },
             status=status.HTTP_200_OK
         )
