@@ -1,0 +1,311 @@
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap');
+
+:root {
+  --ink: #12151c;
+  --ink-soft: #2a2e3a;
+  --paper: #faf8f3;
+  --paper-dim: #f1ede4;
+  --forest: #1f4e3d;
+  --forest-dark: #163a2e;
+  --brass: #b8925a;
+  --brass-soft: #e8d9be;
+  --text: #1c1f26;
+  --text-muted: #6b7280;
+  --border: #e4e0d5;
+  --white: #ffffff;
+  --shadow-md: 0 8px 24px rgba(18, 21, 28, 0.08);
+  --shadow-lg: 0 20px 48px rgba(18, 21, 28, 0.14);
+  --radius-md: 10px;
+  --radius-lg: 22px;
+  --font-display: "Fraunces", "Georgia", serif;
+  --font-body: "Inter", "Segoe UI", system-ui, sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, monospace;
+}
+
+.home {
+  font-family: var(--font-body);
+  color: var(--text);
+  background: var(--paper);
+  min-height: calc(100vh - 70px);
+}
+
+.hero {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 7rem 1.5rem 8rem;
+  overflow: hidden;
+  background:
+    repeating-linear-gradient(
+      to bottom,
+      transparent 0,
+      transparent 38px,
+      rgba(31, 78, 61, 0.055) 39px
+    ),
+    var(--paper);
+}
+
+.hero::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at 18% 15%, rgba(184, 146, 90, 0.14), transparent 42%),
+    radial-gradient(circle at 85% 85%, rgba(31, 78, 61, 0.1), transparent 45%);
+  pointer-events: none;
+}
+
+.hero-content {
+  position: relative;
+  max-width: 700px;
+  animation: fadeUp 0.7s ease both;
+}
+
+.hero-eyebrow {
+  display: inline-block;
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--forest);
+  padding-bottom: 0.6rem;
+  margin-bottom: 1.25rem;
+  border-bottom: 1px solid var(--brass);
+}
+
+.user-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.online-pulse {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--forest);
+  box-shadow: 0 0 8px var(--forest);
+  animation: pulse-ring 2s infinite;
+}
+
+@keyframes pulse-ring {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(0.8); opacity: 0.5; }
+}
+
+.hero-content h1 {
+  font-family: var(--font-display);
+  font-size: clamp(2.4rem, 5.4vw, 3.75rem);
+  font-weight: 600;
+  line-height: 1.12;
+  margin: 0;
+  letter-spacing: -0.01em;
+  color: var(--ink);
+}
+
+.hero-content h1:nth-of-type(2) {
+  font-style: italic;
+  font-weight: 500;
+  color: var(--forest);
+  margin-bottom: 1.5rem;
+}
+
+.user-name-highlight {
+  color: var(--forest);
+  font-style: italic;
+}
+
+.hero-content p {
+  font-size: 1.08rem;
+  color: var(--text-muted);
+  line-height: 1.75;
+  max-width: 520px;
+  margin: 0 auto 2.5rem;
+}
+
+/* Loading State Spinner */
+.hero-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  color: var(--text-muted);
+  font-size: 0.95rem;
+}
+
+.spinner {
+  width: 28px;
+  height: 28px;
+  border: 3px solid var(--paper-dim);
+  border-top-color: var(--forest);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* Button Styling */
+.hero-buttons {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.primary-btn,
+.secondary-btn {
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 0.98rem;
+  font-family: var(--font-body);
+  padding: 0.85rem 2.1rem;
+  border-radius: var(--radius-md);
+  transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.primary-btn {
+  background: var(--forest);
+  color: var(--white);
+  box-shadow: var(--shadow-md);
+}
+
+.primary-btn:hover {
+  background: var(--forest-dark);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-lg);
+}
+
+.primary-btn svg {
+  width: 18px;
+  height: 18px;
+  transition: transform 0.2s ease;
+}
+
+.primary-btn:hover svg {
+  transform: translateX(3px);
+}
+
+.secondary-btn {
+  background: transparent;
+  color: var(--ink);
+  border: 1.5px solid var(--border);
+}
+
+.secondary-btn:hover {
+  border-color: var(--brass);
+  color: var(--forest-dark);
+  transform: translateY(-2px);
+}
+
+.secondary-btn svg {
+  width: 18px;
+  height: 18px;
+}
+
+/* Features Grid */
+.features {
+  position: relative;
+  z-index: 2;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 1.5rem;
+  max-width: 1080px;
+  margin: -3.5rem auto 5.5rem;
+  padding: 0 1.5rem;
+}
+
+.feature-card {
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--brass);
+  border-radius: var(--radius-lg);
+  padding: 2.1rem 1.85rem;
+  box-shadow: var(--shadow-md);
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+  text-align: left;
+  display: flex;
+  flex-direction: column;
+}
+
+.feature-card:hover {
+  transform: translateY(-6px);
+  box-shadow: var(--shadow-lg);
+}
+
+.user-action-card:hover {
+  border-left-color: var(--forest);
+}
+
+.feature-icon {
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: var(--paper-dim);
+  color: var(--forest);
+  margin-bottom: 1.1rem;
+}
+
+.feature-icon svg {
+  width: 20px;
+  height: 20px;
+}
+
+.feature-card h3 {
+  font-family: var(--font-display);
+  font-size: 1.2rem;
+  margin: 0 0 0.5rem;
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.feature-card p {
+  margin: 0 0 1.25rem 0;
+  color: var(--text-muted);
+  font-size: 0.94rem;
+  line-height: 1.6;
+}
+
+.card-link {
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--forest);
+  text-decoration: none;
+  margin-top: auto;
+  transition: color 0.2s ease;
+}
+
+.card-link:hover {
+  color: var(--brass);
+  text-decoration: underline;
+}
+
+@keyframes fadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (max-width: 640px) {
+  .hero {
+    padding: 4.5rem 1.25rem 5.5rem;
+  }
+  .features {
+    margin-top: -2.5rem;
+  }
+}

@@ -1,0 +1,214 @@
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap');
+
+:root {
+  --ink: #12151c;
+  --paper: #faf8f3;
+  --paper-dim: #f1ede4;
+  --forest: #1f4e3d;
+  --forest-dark: #163a2e;
+  --brass: #b8925a;
+  --brass-soft: #e8d9be;
+  --text-muted: #6b7280;
+  --border: #e4e0d5;
+  --white: #ffffff;
+  --font-display: "Fraunces", "Georgia", serif;
+  --font-body: "Inter", system-ui, sans-serif;
+  --font-mono: "IBM Plex Mono", monospace;
+}
+
+.navbar-header {
+  position: sticky;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+  width: 100%;
+  background: var(--paper);
+  border-bottom: 1px solid var(--border);
+  transition: all 0.25s ease;
+}
+
+.navbar-scrolled {
+  background: rgba(250, 248, 243, 0.92);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-bottom-color: var(--brass);
+  box-shadow: 0 4px 20px rgba(18, 21, 28, 0.06);
+}
+
+.navbar {
+  max-width: 1140px;
+  margin: 0 auto;
+  padding: 1rem 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.navbar h2 {
+  margin: 0;
+}
+
+/* Brand Link */
+.brand-link {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  text-decoration: none;
+  color: var(--ink);
+  transition: opacity 0.2s ease;
+}
+
+.brand-link:hover {
+  opacity: 0.9;
+}
+
+.brand-mark {
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
+  background: var(--forest);
+  color: var(--white);
+  font-family: var(--font-display);
+  font-size: 1.3rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 12px rgba(31, 78, 61, 0.25);
+  border: 1px solid var(--brass);
+}
+
+.brand-word {
+  font-family: var(--font-display);
+  font-size: 1.35rem;
+  font-weight: 600;
+  color: var(--ink);
+  letter-spacing: -0.01em;
+}
+
+.brand-accent {
+  color: var(--forest);
+  font-style: italic;
+  margin-left: 0.15rem;
+}
+
+/* Navigation Links */
+.nav-links {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+}
+
+.nav-item {
+  color: var(--text-muted);
+  text-decoration: none;
+  font-family: var(--font-body);
+  font-size: 0.95rem;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.45rem 0.85rem;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+}
+
+.nav-item svg {
+  width: 16px;
+  height: 16px;
+}
+
+.nav-item:hover {
+  color: var(--forest-dark);
+  background: var(--paper-dim);
+}
+
+.nav-item.active {
+  color: var(--forest);
+  font-weight: 600;
+  background: rgba(31, 78, 61, 0.08);
+}
+
+/* User Profile Initial Avatar */
+.profile-icon-badge,
+.profile-icon {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: var(--forest);
+  color: var(--white);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 1.1rem;
+  box-shadow: 0 4px 12px rgba(31, 78, 61, 0.25);
+  border: 2px solid var(--brass);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.profile-icon-badge:hover,
+.profile-icon:hover {
+  transform: scale(1.06);
+  box-shadow: 0 6px 16px rgba(31, 78, 61, 0.35);
+}
+
+.active-profile {
+  border-color: var(--forest);
+  box-shadow: 0 0 0 3px rgba(31, 78, 61, 0.2);
+}
+
+/* Eradicate any extra pseudo elements or indicator rules */
+.online-indicator {
+  display: none !important;
+}
+
+.profile-icon-badge::before,
+.profile-icon-badge::after,
+.profile-icon::before,
+.profile-icon::after {
+  display: none !important;
+  content: none !important;
+}
+
+/* Register Button */
+.register-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.55rem 1.25rem;
+  background: var(--forest);
+  color: var(--white);
+  border-radius: 8px;
+  text-decoration: none;
+  font-family: var(--font-body);
+  font-size: 0.925rem;
+  font-weight: 600;
+  box-shadow: 0 4px 12px rgba(31, 78, 61, 0.2);
+  transition: all 0.2s ease;
+}
+
+.register-btn svg {
+  width: 16px;
+  height: 16px;
+  transition: transform 0.2s ease;
+}
+
+.register-btn:hover {
+  background: var(--forest-dark);
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(31, 78, 61, 0.3);
+}
+
+.register-btn:hover svg {
+  transform: translateX(3px);
+}
+
+@media (max-width: 640px) {
+  .navbar {
+    padding: 0.85rem 1rem;
+  }
+}
