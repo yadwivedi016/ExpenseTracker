@@ -3,24 +3,30 @@ import { Link } from "react-router-dom";
 import API from "../api";
 import "../Styles/Home.css";
 
-const Home = () => {
+const Home = ({ isAuthenticated }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    API.get("/profile/", {
+    if (isAuthenticated) {
+      setLoading(true);
+      API.get("/profile/", {
         withCredentials: true,
       })
-      .then((response) => {
-        setUser(response.data.user);
-      })
-      .catch(() => {
-        setUser(null);
-      })
-      .finally(() => {
-        setLoading(false);
-      });
-  }, []);
+        .then((response) => {
+          setUser(response.data.user);
+        })
+        .catch(() => {
+          setUser(null);
+        })
+        .finally(() => {
+          setLoading(false);
+        });
+    } else {
+      setUser(null);
+      setLoading(false);
+    }
+  }, [isAuthenticated]);
 
   return (
     <div className="home">
@@ -35,7 +41,7 @@ const Home = () => {
               <span className="spinner"></span>
               <p>Checking authentication status...</p>
             </div>
-          ) : user ? (
+          ) : isAuthenticated && user ? (
             /* Logged-In User Hero View */
             <div className="user-hero-view">
               <span className="hero-eyebrow user-badge">
@@ -100,7 +106,7 @@ const Home = () => {
 
       {/* Features / Quick Action Section */}
       <section className="features">
-        {user ? (
+        {isAuthenticated && user ? (
           /* Logged-In Quick Action Cards */
           <>
             <div className="feature-card user-action-card">

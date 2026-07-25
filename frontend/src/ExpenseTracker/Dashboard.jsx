@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import API from "../api";
 
 import "../Styles/Dashboard.css";
@@ -9,7 +10,9 @@ import CategoryForm from "./CategoryForm";
 import CategoryList from "./CategoryList";
 import TransactionTable from "./TransactionTable";
 
-const Dashboard = () => {
+const Dashboard = ({ isAuthenticated, setIsAuthenticated }) => {
+  const navigate = useNavigate();
+
   const [categories, setCategories] = useState([]);
   const [transactions, setTransactions] = useState([]);
 
@@ -31,9 +34,21 @@ const Dashboard = () => {
   });
 
   useEffect(() => {
+    if (!isAuthenticated) {
+      navigate("/login");
+      return;
+    }
     loadCategories();
     loadTransactions();
-  }, []);
+  }, [isAuthenticated, navigate]);
+
+  const handleUnauthorized = (err) => {
+    if (err.response?.status === 401 || err.response?.status === 403) {
+      localStorage.removeItem("token");
+      if (setIsAuthenticated) setIsAuthenticated(false);
+      navigate("/login");
+    }
+  };
 
   // Summary logic
   const income = transactions
@@ -53,6 +68,7 @@ const Dashboard = () => {
       setCategories(res.data.categories || []);
     } catch (err) {
       console.log(err.response?.data);
+      handleUnauthorized(err);
     }
   };
 
@@ -79,6 +95,7 @@ const Dashboard = () => {
       loadCategories();
     } catch (err) {
       alert(err.response?.data?.message || "An error occurred");
+      handleUnauthorized(err);
     }
   };
 
@@ -104,6 +121,7 @@ const Dashboard = () => {
       loadTransactions();
     } catch (err) {
       alert(err.response?.data?.message || "An error occurred");
+      handleUnauthorized(err);
     }
   };
 
@@ -116,6 +134,7 @@ const Dashboard = () => {
       setTransactions(res.data.transactions || []);
     } catch (err) {
       console.log(err.response?.data);
+      handleUnauthorized(err);
     }
   };
 
@@ -147,6 +166,7 @@ const Dashboard = () => {
       loadTransactions();
     } catch (err) {
       alert(err.response?.data?.message || "An error occurred");
+      handleUnauthorized(err);
     }
   };
 
@@ -178,6 +198,7 @@ const Dashboard = () => {
       loadTransactions();
     } catch (err) {
       alert(err.response?.data?.message || "An error occurred");
+      handleUnauthorized(err);
     }
   };
 
@@ -187,6 +208,8 @@ const Dashboard = () => {
       : transactions.filter(
           (tx) => String(tx.category_id) === String(selectedCategoryId)
         );
+
+  if (!isAuthenticated) return null;
 
   return (
     <div className="dashboard-container">

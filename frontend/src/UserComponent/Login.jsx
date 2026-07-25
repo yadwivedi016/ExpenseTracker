@@ -1,9 +1,9 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import API from "../api";
 import "../Styles/Login.css";
 
-const Login = () => {
+const Login = ({ isAuthenticated, setIsAuthenticated }) => {
   const navigate = useNavigate();
 
   const [formData, setFormData] = useState({
@@ -12,6 +12,13 @@ const Login = () => {
   });
 
   const [error, setError] = useState("");
+
+  // Redirect if already logged in
+  useEffect(() => {
+    if (isAuthenticated) {
+      navigate("/dashboard");
+    }
+  }, [isAuthenticated, navigate]);
 
   const handleChange = (e) => {
     setFormData({
@@ -23,27 +30,21 @@ const Login = () => {
   };
 
   const handleSubmit = async (e) => {
-  e.preventDefault();
-  try {
-    const response = await API.post("/login/", formData);
+    e.preventDefault();
+    try {
+      const response = await API.post("/login/", formData);
 
-    console.log("Response from server:", response.data); // Log karke check karlo
-
-    if (response.data.access) {
-      // 1. Token localstorage me save karo
-      localStorage.setItem("token", response.data.access);
-      
-      alert(response.data.message || "Login successful!");
-      
-      // 2. Clear state / Navigate after token is stored
-      navigate("/dashboard"); 
-    } else {
-      alert("Backend didn't send 'access' token!");
+      if (response.data.access) {
+        localStorage.setItem("token", response.data.access);
+        setIsAuthenticated(true);
+        navigate("/dashboard");
+      } else {
+        alert("Backend didn't send 'access' token!");
+      }
+    } catch (error) {
+      setError(error.response?.data?.message || "Login failed");
     }
-  } catch (error) {
-    setError(error.response?.data?.message || "Login failed");
-  }
-};
+  };
 
   return (
     <div className="login-container">

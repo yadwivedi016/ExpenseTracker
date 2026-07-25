@@ -3,18 +3,26 @@ import { Link, useLocation } from "react-router-dom";
 import API from "../api";
 import "../Styles/Navbar.css";
 
-const Navbar = () => {
+const Navbar = ({ isAuthenticated, setIsAuthenticated }) => {
   const [user, setUser] = useState(null);
   const [scrolled, setScrolled] = useState(false);
   const location = useLocation();
 
   useEffect(() => {
-    API.get("/profile/", {
-        withCredentials: true,
-      })
-      .then((response) => setUser(response.data.user))
-      .catch(() => setUser(null));
+    if (isAuthenticated) {
+      API.get("/profile/", { withCredentials: true })
+        .then((response) => setUser(response.data.user))
+        .catch(() => {
+          setUser(null);
+          localStorage.removeItem("token");
+          setIsAuthenticated(false);
+        });
+    } else {
+      setUser(null);
+    }
+  }, [isAuthenticated, setIsAuthenticated]);
 
+  useEffect(() => {
     const handleScroll = () => {
       if (window.scrollY > 20) {
         setScrolled(true);
@@ -42,7 +50,7 @@ const Navbar = () => {
         </h2>
 
         <div className="nav-links">
-          {user ? (
+          {isAuthenticated && user ? (
             <>
               <Link
                 to="/dashboard"
