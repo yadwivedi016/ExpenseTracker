@@ -1,19 +1,22 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
-from django.contrib.auth.hashers import check_password
+from rest_framework.permissions import AllowAny, IsAuthenticated
+from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework_simplejwt.tokens import RefreshToken
-from .db import ExpenseTrackerDb
-from .serializers import RegisterSerializer, LoginSerializer,CategorySerializer,TransactionSerializer
+from django.contrib.auth.hashers import check_password
 
+from .db import ExpenseTrackerDb
+from .serializers import RegisterSerializer, LoginSerializer, CategorySerializer, TransactionSerializer
 
 db = ExpenseTrackerDb()
 
 
 class RegisterView(APIView):
+    permission_classes = [AllowAny]
+    authentication_classes = []
 
     def post(self, request):
-
         serializer = RegisterSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
 
@@ -35,6 +38,9 @@ class RegisterView(APIView):
 
 
 class LoginView(APIView):
+    permission_classes = [AllowAny]
+    authentication_classes = []
+
     def post(self, request):
         serializer = LoginSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
@@ -50,7 +56,7 @@ class LoginView(APIView):
                 status=status.HTTP_401_UNAUTHORIZED
             )
 
-        # GENERATE JWT TOKEN
+        # Generate JWT Token
         refresh = RefreshToken()
         refresh["user_id"] = user["user_id"]
         refresh["username"] = user["username"]
@@ -59,7 +65,7 @@ class LoginView(APIView):
             {
                 "success": True,
                 "message": "Login successful.",
-                "access": str(refresh.access_token),  # <-- Front-end ISKO dhoond raha hai!
+                "access": str(refresh.access_token),
                 "refresh": str(refresh),
             },
             status=status.HTTP_200_OK
@@ -67,34 +73,24 @@ class LoginView(APIView):
 
 
 class ProfileView(APIView):
+    permission_classes = [IsAuthenticated]
+    authentication_classes = [JWTAuthentication]
 
     def get(self, request):
+        # Read user_id directly from the authenticated JWT token payload
+        user_id = request.user.id if hasattr(request.user, 'id') else request.auth.get("user_id")
 
-        # print("PROFILE SESSION:", dict(request.session))
-        # print("SESSION KEY:", request.session.session_key)
-
-        user_id = request.session.get("user_id")
-
-        if user_id is None:
+        if not user_id:
             return Response(
-                {
-                    "success": False,
-                    "message": "Authentication required."
-                },
+                {"success": False, "message": "Authentication required."},
                 status=status.HTTP_401_UNAUTHORIZED
             )
 
         user = db.get_user_by_id(user_id)
-        # print(user)
 
         if user is None:
-            request.session.flush()
-
             return Response(
-                {
-                    "success": False,
-                    "message": "User not found."
-                },
+                {"success": False, "message": "User not found."},
                 status=status.HTTP_404_NOT_FOUND
             )
 
@@ -103,11 +99,11 @@ class ProfileView(APIView):
                 "success": True,
                 "user": {
                     "user_id": user["user_id"],
-                    "first_name": user["first_name"],
-                    "last_name": user["last_name"],
+                    "first_name": user.get("first_name", ""),
+                    "last_name": user.get("last_name", ""),
                     "username": user["username"],
                     "email": user["email"],
-                    "created_at": user["created_at"],
+                    "created_at": user.get("created_at", ""),
                 }
             },
             status=status.HTTP_200_OK,
@@ -115,235 +111,34 @@ class ProfileView(APIView):
 
 
 class LogoutView(APIView):
+    permission_classes = [IsAuthenticated]
+    authentication_classes = [JWTAuthentication]
 
     def post(self, request):
-
-        if request.session.get("user_id") is None:
-            return Response(
-                {
-                    "success": False,
-                    "message": "You are not logged in."
-                },
-                status=status.HTTP_401_UNAUTHORIZED
-            )
-
-        request.session.flush()
-
         return Response(
-            {
-                "success": True,
-                "message": "Logout successful."
-            },
+            {"success": True, "message": "Logout successful."},
             status=status.HTTP_200_OK
         )
-        
-                         
+
+
 class CategoryView(APIView):
+    permission_classes = [IsAuthenticated]
+    authentication_classes = [JWTAuthentication]
+
+    def _get_user_id(self, request):
+        return request.user.id if hasattr(request.user, 'id') else request.auth.get("user_id")
 
     def get(self, request):
-
-        user_id = request.session.get("user_id")
-
-        if user_id is None:
-            return Response(
-                {
-                    "success": False,
-                    "message": "Authentication required."
-                },
-                status=status.HTTP_401_UNAUTHORIZED
-            )
-
+        user_id = self._get_user_id(request)
         categories = db.get_categories(user_id)
 
         return Response(
-            {
-                "success": True,
-                "categories": categories
-            },
+            {"success": True, "categories": categories},
             status=status.HTTP_200_OK
         )
 
     def post(self, request):
-
-        user_id = request.session.get("user_id")
-
-        if user_id is None:
-            return Response(
-                {
-                    "success": False,
-                    "message": "Authentication required."
-                },
-                status=status.HTTP_401_UNAUTHORIZED
-            )
-
-        serializer = CategorySerializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-
-        result = db.create_category(
-            user_id=user_id,
-            category_name=serializer.validated_data["category_name"],
-            category_type=serializer.validated_data["type"],
-        )
-
-        if result["success"]:
-            return Response(
-                result,
-                status=status.HTTP_201_CREATED
-            )
-
-        return Response(
-            result,
-            status=status.HTTP_400_BAD_REQUEST
-        )
-
-class TransactionView(APIView):
-
-    def get(self, request):
-
-        user_id = request.session.get("user_id")
-
-        if user_id is None:
-            return Response(
-                {
-                    "success": False,
-                    "message": "Authentication required."
-                },
-                status=status.HTTP_401_UNAUTHORIZED
-            )
-
-        date = request.GET.get("date")
-
-        if date:
-            try:
-                year, month = date.split("-")
-            except ValueError:
-                return Response(
-                    {
-                        "success": False,
-                        "message": "Invalid date format."
-                    },
-                    status=status.HTTP_400_BAD_REQUEST
-                )
-
-            transactions = db.get_transactions(
-                user_id=user_id,
-                year=year,
-                month=month,
-            )
-
-        else:
-            transactions = db.get_transactions(user_id=user_id)
-
-        return Response(
-            {
-                "success": True,
-                "transactions": transactions,
-            },
-            status=status.HTTP_200_OK
-        )
-
-    def post(self, request):
-
-        user_id = request.session.get("user_id")
-
-        if user_id is None:
-            return Response(
-                {
-                    "success": False,
-                    "message": "Authentication required."
-                },
-                status=status.HTTP_401_UNAUTHORIZED
-            )
-
-        serializer = TransactionSerializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-
-        result = db.create_transaction(
-            user_id=user_id,
-            category_id=serializer.validated_data["category_id"],
-            amount=serializer.validated_data["amount"],
-            description=serializer.validated_data["description"],
-            transaction_date=serializer.validated_data["transaction_date"],
-        )
-
-        if result["success"]:
-            return Response(result, status=status.HTTP_201_CREATED)
-
-        return Response(result, status=status.HTTP_400_BAD_REQUEST)
-
-    def post(self, request):
-
-        user_id = request.session.get("user_id")
-
-        if user_id is None:
-            return Response(
-                {
-                    "success": False,
-                    "message": "Authentication required."
-                },
-                status=status.HTTP_401_UNAUTHORIZED
-            )
-
-        serializer = TransactionSerializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-
-        result = db.create_transaction(
-            user_id=user_id,
-            category_id=serializer.validated_data["category_id"],
-            amount=serializer.validated_data["amount"],
-            description=serializer.validated_data["description"],
-            transaction_date=serializer.validated_data["transaction_date"],
-        )
-
-        if result["success"]:
-            return Response(
-                result,
-                status=status.HTTP_201_CREATED
-            )
-
-        return Response(
-            result,
-            status=status.HTTP_400_BAD_REQUEST
-        )
-        
-class CategoryView(APIView):
-
-    def get(self, request):
-
-        user_id = request.session.get("user_id")
-
-        if user_id is None:
-            return Response(
-                {
-                    "success": False,
-                    "message": "Authentication required."
-                },
-                status=status.HTTP_401_UNAUTHORIZED
-            )
-
-        categories = db.get_categories(user_id)
-
-        return Response(
-            {
-                "success": True,
-                "categories": categories
-            },
-            status=status.HTTP_200_OK
-        )
-
-    def post(self, request):
-
-        user_id = request.session.get("user_id")
-
-        if user_id is None:
-            return Response(
-                {
-                    "success": False,
-                    "message": "Authentication required."
-                },
-                status=status.HTTP_401_UNAUTHORIZED
-            )
-
+        user_id = self._get_user_id(request)
         serializer = CategorySerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
 
@@ -359,18 +154,7 @@ class CategoryView(APIView):
         )
 
     def put(self, request, category_id):
-
-        user_id = request.session.get("user_id")
-
-        if user_id is None:
-            return Response(
-                {
-                    "success": False,
-                    "message": "Authentication required."
-                },
-                status=status.HTTP_401_UNAUTHORIZED
-            )
-
+        user_id = self._get_user_id(request)
         serializer = CategorySerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
 
@@ -387,18 +171,7 @@ class CategoryView(APIView):
         )
 
     def delete(self, request, category_id):
-
-        user_id = request.session.get("user_id")
-
-        if user_id is None:
-            return Response(
-                {
-                    "success": False,
-                    "message": "Authentication required."
-                },
-                status=status.HTTP_401_UNAUTHORIZED
-            )
-
+        user_id = self._get_user_id(request)
         result = db.delete_category(
             user_id=user_id,
             category_id=category_id,
@@ -409,43 +182,37 @@ class CategoryView(APIView):
             status=status.HTTP_200_OK if result["success"] else status.HTTP_404_NOT_FOUND
         )
 
+
 class TransactionView(APIView):
+    permission_classes = [IsAuthenticated]
+    authentication_classes = [JWTAuthentication]
+
+    def _get_user_id(self, request):
+        return request.user.id if hasattr(request.user, 'id') else request.auth.get("user_id")
 
     def get(self, request):
+        user_id = self._get_user_id(request)
+        date = request.GET.get("date")
 
-        user_id = request.session.get("user_id")
-
-        if user_id is None:
-            return Response(
-                {
-                    "success": False,
-                    "message": "Authentication required."
-                },
-                status=status.HTTP_401_UNAUTHORIZED
-            )
-
-        transactions = db.get_transactions(user_id)
+        if date:
+            try:
+                year, month = date.split("-")
+                transactions = db.get_transactions(user_id=user_id, year=year, month=month)
+            except ValueError:
+                return Response(
+                    {"success": False, "message": "Invalid date format."},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+        else:
+            transactions = db.get_transactions(user_id=user_id)
 
         return Response(
-            {
-                "success": True,
-                "transactions": transactions
-            }
+            {"success": True, "transactions": transactions},
+            status=status.HTTP_200_OK
         )
 
     def post(self, request):
-
-        user_id = request.session.get("user_id")
-
-        if user_id is None:
-            return Response(
-                {
-                    "success": False,
-                    "message": "Authentication required."
-                },
-                status=status.HTTP_401_UNAUTHORIZED
-            )
-
+        user_id = self._get_user_id(request)
         serializer = TransactionSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
 
@@ -460,18 +227,7 @@ class TransactionView(APIView):
         )
 
     def put(self, request, transaction_id):
-
-        user_id = request.session.get("user_id")
-
-        if user_id is None:
-            return Response(
-                {
-                    "success": False,
-                    "message": "Authentication required."
-                },
-                status=status.HTTP_401_UNAUTHORIZED
-            )
-
+        user_id = self._get_user_id(request)
         serializer = TransactionSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
 
@@ -487,18 +243,7 @@ class TransactionView(APIView):
         )
 
     def delete(self, request, transaction_id):
-
-        user_id = request.session.get("user_id")
-
-        if user_id is None:
-            return Response(
-                {
-                    "success": False,
-                    "message": "Authentication required."
-                },
-                status=status.HTTP_401_UNAUTHORIZED
-            )
-
+        user_id = self._get_user_id(request)
         result = db.delete_transaction(
             user_id=user_id,
             transaction_id=transaction_id,
@@ -507,4 +252,4 @@ class TransactionView(APIView):
         return Response(
             result,
             status=status.HTTP_200_OK if result["success"] else status.HTTP_404_NOT_FOUND
-        )# FORCE_TEST 
+        )
