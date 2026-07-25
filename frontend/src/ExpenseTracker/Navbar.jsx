@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
-import axios from "axios";
+import API from "../api";
 import "../Styles/Navbar.css";
 
 const Navbar = () => {
@@ -9,8 +9,7 @@ const Navbar = () => {
   const location = useLocation();
 
   useEffect(() => {
-    axios
-      .get("http://localhost:8000/api/profile/", {
+    API.get("/profile/", {
         withCredentials: true,
       })
       .then((response) => setUser(response.data.user))

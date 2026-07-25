@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import axios from "axios";
+import API from "../api";
 import { useNavigate } from "react-router-dom";
 import "../Styles/Profile.css";
 
@@ -11,8 +11,7 @@ const Profile = () => {
   const [logoutLoading, setLogoutLoading] = useState(false);
 
   useEffect(() => {
-    axios
-      .get("http://localhost:8000/api/profile/", {
+    API.get("/profile/", {
         withCredentials: true,
       })
       .then((response) => {
@@ -30,8 +29,7 @@ const Profile = () => {
   const handleLogout = async () => {
     setLogoutLoading(true);
     try {
-      const response = await axios.post(
-        "http://localhost:8000/api/logout/",
+      const response = await API.post("/logout/",
         {},
         {
           withCredentials: true,

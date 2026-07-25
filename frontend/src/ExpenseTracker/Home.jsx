@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import axios from "axios";
+import API from "../api";
 import "../Styles/Home.css";
 
 const Home = () => {
@@ -8,8 +8,7 @@ const Home = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    axios
-      .get("http://localhost:8000/api/profile/", {
+    API.get("/profile/", {
         withCredentials: true,
       })
       .then((response) => {
