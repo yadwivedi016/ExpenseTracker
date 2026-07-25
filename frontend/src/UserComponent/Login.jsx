@@ -36,7 +36,7 @@ const Login = () => {
       alert(response.data.message || "Login successful!");
       
       // 2. Clear state / Navigate after token is stored
-      navigate("/Dashboard"); 
+      navigate("/profile"); 
     } else {
       alert("Backend didn't send 'access' token!");
     }
