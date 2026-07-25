@@ -24,32 +24,29 @@ const Login = () => {
   };
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
+  e.preventDefault();
 
-    try {
+  try {
+    const response = await API.post("/login/", formData);
 
-      const response = await API.post("/login/",
-        formData,
-        {
-          withCredentials: true,
-        }
-      );
-
-      alert(response.data.message);
-
-      navigate("/");
-
-    } catch (error) {
-
-      if (error.response) {
-        setError(error.response.data.message);
-      } else {
-        setError("Something went wrong.");
-      }
-
+    // 1. Save the token from the backend
+    if (response.data.access) {
+      localStorage.setItem("token", response.data.access);
     }
-  };
 
+    alert(response.data.message || "Login successful!");
+
+    // 2. Navigate to dashboard/profile
+    navigate("/");
+
+  } catch (error) {
+    if (error.response) {
+      setError(error.response.data.message);
+    } else {
+      setError("Something went wrong.");
+    }
+  }
+};
   return (
     <div className="login-container">
       <div className="login-card">
