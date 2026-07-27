@@ -1,13 +1,12 @@
 # 💰 Expense Tracker
 
-A full-stack Expense Tracker application built with **React**, **Django REST Framework**, and **PostgreSQL**. It helps users manage their personal finances by tracking income, expenses, and custom categories through a simple and responsive dashboard.
+A full-stack Expense Tracker application built with **React**, **Django REST Framework (DRF)**, and **PostgreSQL**. The application enables users to securely manage their personal finances by tracking income, expenses, and custom categories through a clean and responsive dashboard. The frontend communicates with a RESTful API built using Django REST Framework for authentication and data management.
 
 ---
 
 ## 🌐 Live Demo
 
-- **Frontend:** https://expense-tracker-mocha-seven-30.vercel.app/
-- **Backend API:** https://expensetracker-puem.onrender.com/
+🚀 **Application:** https://expense-tracker-mocha-seven-30.vercel.app/
 
 ---
 
@@ -18,7 +17,7 @@ A full-stack Expense Tracker application built with **React**, **Django REST Fra
 - 💰 Add Income & Expense Transactions
 - 📂 Create, Update & Delete Categories
 - 💳 Create, Update & Delete Transactions
-- 📊 Dashboard with:
+- 📊 Dashboard displaying:
   - Total Income
   - Total Expense
   - Current Balance
@@ -31,19 +30,22 @@ A full-stack Expense Tracker application built with **React**, **Django REST Fra
 ## 🛠️ Tech Stack
 
 ### Frontend
+
 - React
 - React Router
 - Axios
 - CSS3
 
 ### Backend
+
 - Django
-- Django REST Framework
+- Django REST Framework (DRF)
 - PostgreSQL
 - Psycopg
 - Python Dotenv
 
 ### Deployment
+
 - Frontend: Vercel
 - Backend: Render
 
@@ -162,16 +164,10 @@ Add screenshots of:
 
 **Yash Dwivedi**
 
-- GitHub: https://github.com/yadwivedi016
+GitHub: https://github.com/yadwivedi016
 
 ---
 
 ## ⭐ Support
 
-If you found this project useful, please consider giving it a ⭐ on GitHub.
-
----
-
-## 📄 License
-
-This project is licensed under the MIT License.
+If you found this project useful, consider giving it a ⭐ on GitHub.
